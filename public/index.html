@@ -691,14 +691,14 @@
     </div>
 
     <button class="btn-open-ia" id="btnOpenIA" onclick="openInIA()">
-      <span id="btnOpenIAText">⚡ Copier & ouvrir dans Claude</span>
+      <span id="btnOpenIAText">⚡Copier & ouvrir dans Claude</span>
     </button>
     <button class="btn-new" onclick="resetForm()">← Générer un nouveau prompt</button>
   </div>
 </main>
 
 <footer>
-  <p>Propulsé par <span>PrompTalent</span> · Donnez du talent à votre IA ⚡</p>
+  <p>Propulsé par <span>PrompTalent</span> · Donnez du talent à votre IA⚡</p>
 </footer>
 
 <script>
@@ -719,12 +719,12 @@ function updateOpenIAButton() {
     // Sera mis à jour après génération
     iaName = 'l\'IA recommandée';
   }
-  btn.textContent = '⚡ Copier & ouvrir dans ' + iaName;
+  btn.textContent = '⚡Copier & ouvrir dans ' + iaName;
 }
 
 function openInIA() {
   const prompt = document.getElementById('promptText').textContent;
-  const iaName = document.getElementById('btnOpenIAText').textContent.replace('⚡ Copier & ouvrir dans ', '');
+  const iaName = document.getElementById('btnOpenIAText').textContent.replace('⚡Copier & ouvrir dans ', '');
   
   // Copier le prompt
   navigator.clipboard.writeText(prompt).then(() => {
@@ -883,7 +883,7 @@ Génère un prompt PrompTalent parfait pour cette situation.`;
         const found = iaNames.find(name => result.ia_recommandee.includes(name));
         displayIA = found || 'Claude';
       }
-      openBtn.textContent = '⚡ Copier & ouvrir dans ' + displayIA;
+      openBtn.textContent = '⚡Copier & ouvrir dans ' + displayIA;
     }
     document.getElementById('resultCard').classList.add('visible');
     updateStep(3);
