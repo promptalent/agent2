@@ -897,7 +897,7 @@ function updateOpenIAButton() {
 
 function openInIA() {
  const prompt = document.getElementById('promptText').textContent;
- const iaName = document.getElementById('btnOpenIAText').textContent.replace(' Copier & ouvrir dans2 ', '');
+ const iaName = document.getElementById('btnOpenIAText').textContent.replace(' Copier & ouvrir dans ', '');
  
  // Copier le prompt
  navigator.clipboard.writeText(prompt).then(() => {
@@ -1056,7 +1056,7 @@ Génère un prompt PrompTalent parfait pour cette situation.`;
  const found = iaNames.find(name => result.ia_recommandee.includes(name));
  displayIA = found || 'Claude';
  }
- openBtn.textContent = ' Copier & ouvrir dans2 ' + displayIA;
+ openBtn.textContent = ' Copier & ouvrir dans ' + displayIA;
  }
  document.getElementById('resultCard').classList.add('visible');
  updateStep(3);
