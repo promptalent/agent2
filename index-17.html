@@ -1,0 +1,1216 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PrompTalent — Générateur de Prompts IA</title>
+<style>
+ :root {
+ --navy: #1a1740;
+ --navy-light: #252060;
+ --navy-border: #3A3580;
+ --yellow: #FCDE5A;
+ --yellow-dark: #E8C93A;
+ --white: #ffffff;
+ --gray: #AAAACC;
+ --gray-light: #F4F3EF;
+ --purple: #534AB7;
+ }
+
+ * { margin: 0; padding: 0; box-sizing: border-box; }
+
+ body {
+ font-family: 'DM Sans', sans-serif;
+ background: var(--navy);
+ color: var(--white);
+ min-height: 100vh;
+ overflow-x: hidden;
+ font-size: 15px;
+ }
+
+ /* Fond animé */
+ body::before {
+ content: '';
+ position: fixed;
+ top: -200px; right: -200px;
+ width: 600px; height: 600px;
+ border-radius: 50%;
+ background: radial-gradient(circle, rgba(83,74,183,0.3) 0%, transparent 70%);
+ animation: float 8s ease-in-out infinite;
+ pointer-events: none;
+ }
+ body::after {
+ content: '';
+ position: fixed;
+ bottom: -150px; left: -150px;
+ width: 500px; height: 500px;
+ border-radius: 50%;
+ background: radial-gradient(circle, rgba(252,222,90,0.1) 0%, transparent 70%);
+ animation: float 10s ease-in-out infinite reverse;
+ pointer-events: none;
+ }
+ @keyframes float {
+ 0%, 100% { transform: translate(0, 0); }
+ 50% { transform: translate(30px, -30px); }
+ }
+
+ /* Header */
+ header {
+ padding: 28px 40px;
+ display: flex;
+ align-items: center;
+ justify-content: space-between;
+ position: relative;
+ z-index: 10;
+ border-bottom: 1px solid rgba(255,255,255,0.06);
+ }
+ .logo {
+ font-size: 18px;
+ font-weight: 700;
+ letter-spacing: -0.5px;
+ }
+ .logo .promp { color: rgba(255,255,255,0.7); }
+ .logo .talent { color: var(--yellow); }
+ .logo-sub {
+ font-size: 11px;
+ color: var(--gray);
+ margin-top: 2px;
+ font-style: italic;
+ letter-spacing: 0.3px;
+ }
+ .header-badge {
+ background: rgba(252,222,90,0.1);
+ border: 1px solid rgba(252,222,90,0.25);
+ color: var(--yellow);
+ font-size: 11px;
+ font-weight: 600;
+ padding: 6px 14px;
+ border-radius: 20px;
+ letter-spacing: 0.5px;
+ }
+
+ /* Main */
+ main {
+ max-width: 820px;
+ margin: 0 auto;
+ padding: 60px 24px 80px;
+ position: relative;
+ z-index: 10;
+ }
+
+ /* Hero */
+ .hero {
+ text-align: center;
+ margin-bottom: 52px;
+ }
+ .hero h1 {
+ font-size: clamp(36px, 4vw, 48px);
+ font-weight: 700;
+ letter-spacing: -1.5px;
+ line-height: 1.15;
+ margin-bottom: 16px;
+ }
+ .hero h1 span { color: var(--yellow); }
+ .hero p {
+ font-size: 16px;
+ color: var(--gray);
+ line-height: 1.7;
+ max-width: 520px;
+ margin: 0 auto;
+ }
+
+ /* Steps */
+ .steps {
+ display: flex;
+ gap: 8px;
+ justify-content: center;
+ margin: 32px 0 48px;
+ }
+ .step {
+ display: flex;
+ align-items: center;
+ gap: 8px;
+ font-size: 12px;
+ color: var(--gray);
+ }
+ .step.active { color: var(--yellow); }
+ .step-num {
+ width: 22px; height: 22px;
+ border-radius: 50%;
+ background: rgba(255,255,255,0.08);
+ border: 1px solid rgba(255,255,255,0.15);
+ display: flex; align-items: center; justify-content: center;
+ font-size: 11px; font-weight: 700;
+ transition: all 0.3s;
+ }
+ .step.active .step-num {
+ background: var(--yellow);
+ color: var(--navy);
+ border-color: var(--yellow);
+ }
+ .step.done .step-num {
+ background: rgba(252,222,90,0.2);
+ border-color: var(--yellow);
+ color: var(--yellow);
+ }
+ .step-sep {
+ width: 32px; height: 1px;
+ background: rgba(255,255,255,0.1);
+ margin-top: 1px;
+ }
+
+ /* Form card */
+ .form-card {
+ background: rgba(255,255,255,0.03);
+ border: 1px solid rgba(255,255,255,0.08);
+ border-radius: 20px;
+ padding: 36px;
+ backdrop-filter: blur(10px);
+ }
+
+ .field-group {
+ margin-bottom: 24px;
+ }
+ label {
+ display: block;
+ font-size: 13px;
+ font-weight: 600;
+ color: rgba(255,255,255,0.7);
+ margin-bottom: 8px;
+ letter-spacing: 0.3px;
+ }
+ label span {
+ color: var(--yellow);
+ margin-left: 4px;
+ }
+
+ /* Sélecteur métier */
+ .metier-grid {
+ display: grid;
+ grid-template-columns: repeat(3, 1fr);
+ gap: 8px;
+ }
+ .metier-btn {
+ background: rgba(255,255,255,0.04);
+ border: 1px solid rgba(255,255,255,0.1);
+ color: var(--gray);
+ padding: 10px 14px;
+ border-radius: 10px;
+ font-size: 13px;
+ font-family: 'DM Sans', sans-serif;
+ cursor: pointer;
+ transition: all 0.2s;
+ text-align: center;
+ }
+ .metier-btn:hover {
+ background: rgba(255,255,255,0.08);
+ border-color: rgba(255,255,255,0.2);
+ color: var(--white);
+ }
+ .metier-btn.selected {
+ background: rgba(252,222,90,0.12);
+ border-color: var(--yellow);
+ color: var(--yellow);
+ font-weight: 600;
+ }
+
+ textarea, input[type="text"] {
+ width: 100%;
+ background: rgba(255,255,255,0.04);
+ border: 1px solid rgba(255,255,255,0.1);
+ border-radius: 12px;
+ padding: 14px 16px;
+ font-size: 14px;
+ font-family: 'DM Sans', sans-serif;
+ color: var(--white);
+ resize: none;
+ transition: all 0.2s;
+ outline: none;
+ line-height: 1.6;
+ }
+ textarea::placeholder, input::placeholder { color: rgba(255,255,255,0.25); }
+ textarea:focus, input:focus {
+ border-color: rgba(252,222,90,0.4);
+ background: rgba(255,255,255,0.06);
+ }
+
+ /* Sélecteur IA */
+ .ia-grid {
+ display: grid;
+ gap: 8px;
+ margin-bottom: 8px;
+ }
+ .ia-grid-top {
+ grid-template-columns: repeat(3, 1fr);
+ }
+ .ia-grid-bottom {
+ grid-template-columns: repeat(2, 1fr);
+ margin-bottom: 0;
+ }
+ .ia-btn {
+ background: rgba(255,255,255,0.04);
+ border: 1px solid rgba(255,255,255,0.1);
+ color: var(--gray);
+ padding: 10px 8px;
+ border-radius: 10px;
+ font-size: 12px;
+ font-family: 'DM Sans', sans-serif;
+ cursor: pointer;
+ transition: all 0.2s;
+ text-align: center;
+ }
+ .ia-btn:hover {
+ background: rgba(255,255,255,0.08);
+ color: var(--white);
+ }
+ .ia-btn.selected {
+ background: rgba(83,74,183,0.2);
+ border-color: var(--purple);
+ color: var(--white);
+ font-weight: 600;
+ }
+ .ia-name { font-weight: 600; display: block; }
+ .ia-desc { font-size: 10px; opacity: 0.6; margin-top: 2px; display: block; }
+
+ /* Bouton générer */
+ .btn-generate {
+ width: 100%;
+ background: var(--yellow);
+ color: var(--navy);
+ border: none;
+ padding: 16px 24px;
+ border-radius: 12px;
+ font-size: 15px;
+ font-weight: 700;
+ font-family: 'DM Sans', sans-serif;
+ cursor: pointer;
+ transition: all 0.2s;
+ display: flex;
+ align-items: center;
+ justify-content: center;
+ gap: 10px;
+ margin-top: 8px;
+ letter-spacing: -0.2px;
+ }
+ .btn-generate:hover {
+ background: var(--yellow-dark);
+ transform: translateY(-1px);
+ box-shadow: 0 8px 24px rgba(252,222,90,0.25);
+ }
+ .btn-generate:disabled {
+ opacity: 0.4;
+ cursor: not-allowed;
+ transform: none;
+ box-shadow: none;
+ }
+ .btn-icon { font-size: 18px; }
+
+ /* Loading */
+ .loading-state {
+ display: none;
+ text-align: center;
+ padding: 48px 24px;
+ }
+ .loading-state.visible { display: block; }
+ .loader {
+ width: 40px; height: 40px;
+ border: 2px solid rgba(252,222,90,0.2);
+ border-top-color: var(--yellow);
+ border-radius: 50%;
+ animation: spin 0.8s linear infinite;
+ margin: 0 auto 20px;
+ }
+ @keyframes spin { to { transform: rotate(360deg); } }
+ .loading-text { color: var(--gray); font-size: 14px; }
+ .loading-steps { margin-top: 16px; }
+ .loading-step {
+ font-size: 12px;
+ color: rgba(255,255,255,0.3);
+ padding: 4px 0;
+ transition: color 0.3s;
+ }
+ .loading-step.active { color: var(--yellow); }
+
+ /* Résultat */
+ .result-card {
+ display: none;
+ margin-top: 32px;
+ animation: slideUp 0.4s ease;
+ }
+ .result-card.visible { display: block; }
+ @keyframes slideUp {
+ from { opacity: 0; transform: translateY(20px); }
+ to { opacity: 1; transform: translateY(0); }
+ }
+
+ .result-header {
+ display: flex;
+ align-items: center;
+ justify-content: space-between;
+ margin-bottom: 16px;
+ }
+ .result-title {
+ font-size: 14px;
+ font-weight: 600;
+ color: var(--yellow);
+ display: flex;
+ align-items: center;
+ gap: 8px;
+ }
+ .result-title::before {
+ content: '';
+ font-size: 16px;
+ }
+
+ .result-box {
+ background: rgba(255,255,255,0.03);
+ border: 1px solid rgba(255,255,255,0.1);
+ border-radius: 14px;
+ overflow: hidden;
+ }
+ .result-box-header {
+ background: rgba(255,255,255,0.04);
+ padding: 12px 16px;
+ display: flex;
+ align-items: center;
+ justify-content: space-between;
+ border-bottom: 1px solid rgba(255,255,255,0.06);
+ }
+ .result-box-label {
+ font-size: 11px;
+ font-weight: 600;
+ color: var(--gray);
+ text-transform: uppercase;
+ letter-spacing: 1px;
+ }
+ .btn-copy {
+ background: rgba(252,222,90,0.1);
+ border: 1px solid rgba(252,222,90,0.2);
+ color: var(--yellow);
+ font-size: 12px;
+ font-weight: 600;
+ padding: 5px 14px;
+ border-radius: 8px;
+ cursor: pointer;
+ font-family: 'DM Sans', sans-serif;
+ transition: all 0.2s;
+ }
+ .btn-copy:hover {
+ background: rgba(252,222,90,0.2);
+ }
+ .btn-copy.copied {
+ background: rgba(29,158,117,0.2);
+ border-color: rgba(29,158,117,0.4);
+ color: #1D9E75;
+ }
+
+ .prompt-text {
+ padding: 20px;
+ font-family: 'DM Mono', monospace;
+ font-size: 13px;
+ line-height: 1.85;
+ color: rgba(255,255,255,0.85);
+ white-space: pre-wrap;
+ word-break: break-word;
+ }
+
+ /* Sections du résultat */
+ .result-sections {
+ display: grid;
+ grid-template-columns: 1fr 1fr;
+ gap: 12px;
+ margin-top: 12px;
+ }
+ .result-section {
+ background: rgba(255,255,255,0.03);
+ border: 1px solid rgba(255,255,255,0.08);
+ border-radius: 12px;
+ padding: 14px 16px;
+ }
+ .section-label {
+ font-size: 10px;
+ font-weight: 700;
+ text-transform: uppercase;
+ letter-spacing: 1px;
+ color: var(--gray);
+ margin-bottom: 8px;
+ }
+ .section-content {
+ font-size: 13px;
+ color: rgba(255,255,255,0.75);
+ line-height: 1.6;
+ }
+ .ia-badge-result {
+ display: inline-block;
+ background: rgba(83,74,183,0.2);
+ border: 1px solid rgba(83,74,183,0.4);
+ color: var(--white);
+ font-size: 12px;
+ font-weight: 600;
+ padding: 4px 12px;
+ border-radius: 8px;
+ margin-right: 6px;
+ margin-bottom: 4px;
+ }
+
+ /* Bouton nouveau */
+
+ .btn-open-ia {
+ width: 100%;
+ background: var(--navy);
+ border: 1px solid var(--navy-border);
+ color: var(--yellow);
+ padding: 13px 24px;
+ border-radius: 12px;
+ font-size: 14px; font-weight: 700;
+ font-family: 'DM Sans', sans-serif;
+ cursor: pointer; transition: all 0.2s;
+ display: flex; align-items: center;
+ justify-content: center; gap: 10px;
+ margin-top: 12px; text-decoration: none;
+ }
+ .btn-open-ia:hover {
+ background: var(--navy-border);
+ transform: translateY(-1px);
+ box-shadow: 0 6px 20px rgba(252,222,90,0.15);
+ }
+ .btn-new {
+ width: 100%;
+ background: transparent;
+ border: 1px solid rgba(255,255,255,0.15);
+ color: var(--gray);
+ padding: 12px;
+ border-radius: 10px;
+ font-size: 13px;
+ font-family: 'DM Sans', sans-serif;
+ cursor: pointer;
+ transition: all 0.2s;
+ margin-top: 12px;
+ }
+ .btn-new:hover {
+ border-color: rgba(255,255,255,0.3);
+ color: var(--white);
+ }
+
+ /* Footer */
+ footer {
+ text-align: center;
+ padding: 32px;
+ color: rgba(255,255,255,0.2);
+ font-size: 12px;
+ position: relative;
+ z-index: 10;
+ }
+ footer span { color: var(--yellow); }
+
+ /* Erreur */
+ .error-box {
+ display: none;
+ background: rgba(216,90,48,0.1);
+ border: 1px solid rgba(216,90,48,0.3);
+ border-radius: 12px;
+ padding: 14px 18px;
+ color: #D85A30;
+ font-size: 13px;
+ margin-top: 16px;
+ }
+ .error-box.visible { display: block; }
+
+ .ia-recommended-btn {
+ width: 100%;
+ margin-top: 10px;
+ background: rgba(252,222,90,0.06);
+ border: 1px dashed rgba(252,222,90,0.35);
+ color: var(--yellow);
+ padding: 12px 16px;
+ border-radius: 12px;
+ font-family: 'DM Sans', sans-serif;
+ cursor: pointer;
+ transition: all 0.2s;
+ display: flex;
+ align-items: center;
+ gap: 12px;
+ text-align: left;
+ }
+ .ia-recommended-btn:hover {
+ background: rgba(252,222,90,0.12);
+ border-color: rgba(252,222,90,0.6);
+ }
+ .ia-recommended-btn.selected {
+ background: rgba(252,222,90,0.15);
+ border-color: var(--yellow);
+ border-style: solid;
+ }
+ .ia-rec-icon { font-size: 18px; flex-shrink: 0; }
+ .ia-rec-title { display: block; font-size: 13px; font-weight: 700; }
+ .ia-rec-sub { display: block; font-size: 11px; opacity: 0.65; margin-top: 2px; }
+
+ @media (max-width: 600px) {
+ header { padding: 20px; }
+ main { padding: 40px 16px 60px; }
+ .hero h1 { font-size: 24px; }
+ .metier-grid { grid-template-columns: repeat(2, 1fr); }
+ .ia-grid { grid-template-columns: repeat(2, 1fr); }
+ .result-sections { grid-template-columns: 1fr; }
+ .form-card { padding: 24px; }
+ }
+
+ /* Sauvegarde */
+ .save-btn {
+ width: 100%;
+ background: transparent;
+ border: 1px solid rgba(252,222,90,0.3);
+ color: var(--yellow);
+ padding: 12px;
+ border-radius: 10px;
+ font-size: 13px;
+ font-weight: 600;
+ font-family: 'DM Sans', sans-serif;
+ cursor: pointer;
+ transition: all 0.2s;
+ margin-top: 8px;
+ display: flex;
+ align-items: center;
+ justify-content: center;
+ gap: 8px;
+ }
+ .save-btn:hover {
+ background: rgba(252,222,90,0.08);
+ border-color: rgba(252,222,90,0.5);
+ }
+ .save-btn.saved {
+ border-color: rgba(29,158,117,0.4);
+ color: #1D9E75;
+ background: rgba(29,158,117,0.08);
+ }
+
+ /* Liste des prompts sauvegardés */
+ .saved-section {
+ margin-top: 32px;
+ display: none;
+ }
+ .saved-section.visible { display: block; }
+ .saved-header {
+ display: flex;
+ align-items: center;
+ justify-content: space-between;
+ margin-bottom: 16px;
+ }
+ .saved-title {
+ font-size: 13px;
+ font-weight: 700;
+ letter-spacing: 1px;
+ text-transform: uppercase;
+ color: var(--gray);
+ }
+ .saved-clear {
+ font-size: 11px;
+ color: rgba(255,255,255,0.25);
+ cursor: pointer;
+ background: none;
+ border: none;
+ font-family: 'DM Sans', sans-serif;
+ transition: color 0.2s;
+ }
+ .saved-clear:hover { color: rgba(255,255,255,0.5); }
+ .saved-list {
+ display: flex;
+ flex-direction: column;
+ gap: 10px;
+ }
+ .saved-item {
+ background: rgba(255,255,255,0.03);
+ border: 1px solid rgba(255,255,255,0.07);
+ border-radius: 12px;
+ padding: 16px;
+ cursor: pointer;
+ transition: all 0.2s;
+ }
+ .saved-item:hover {
+ background: rgba(255,255,255,0.06);
+ border-color: rgba(255,255,255,0.12);
+ }
+ .saved-item-meta {
+ display: flex;
+ align-items: center;
+ justify-content: space-between;
+ margin-bottom: 8px;
+ }
+ .saved-item-title {
+ font-size: 12px;
+ font-weight: 700;
+ color: var(--yellow);
+ text-transform: uppercase;
+ letter-spacing: 0.5px;
+ }
+ .saved-item-date {
+ font-size: 11px;
+ color: rgba(255,255,255,0.2);
+ }
+ .saved-item-preview {
+ font-size: 12px;
+ color: rgba(255,255,255,0.4);
+ line-height: 1.5;
+ overflow: hidden;
+ display: -webkit-box;
+ -webkit-line-clamp: 2;
+ -webkit-box-orient: vertical;
+ }
+ .saved-item-footer {
+ display: flex;
+ gap: 8px;
+ margin-top: 10px;
+ padding-top: 10px;
+ border-top: 1px solid rgba(255,255,255,0.05);
+ }
+ .saved-item-copy {
+ font-size: 11px;
+ color: rgba(255,255,255,0.35);
+ background: none;
+ border: none;
+ font-family: 'DM Sans', sans-serif;
+ cursor: pointer;
+ padding: 4px 10px;
+ border-radius: 6px;
+ border: 1px solid rgba(255,255,255,0.1);
+ transition: all 0.2s;
+ }
+ .saved-item-copy:hover {
+ color: var(--yellow);
+ border-color: rgba(252,222,90,0.3);
+ }
+ .saved-item-delete {
+ font-size: 11px;
+ color: rgba(255,255,255,0.2);
+ background: none;
+ border: none;
+ font-family: 'DM Sans', sans-serif;
+ cursor: pointer;
+ padding: 4px 10px;
+ border-radius: 6px;
+ border: 1px solid rgba(255,255,255,0.06);
+ transition: all 0.2s;
+ margin-left: auto;
+ }
+ .saved-item-delete:hover { color: #E74C3C; border-color: rgba(231,76,60,0.3); }
+ .saved-empty {
+ text-align: center;
+ font-size: 13px;
+ color: rgba(255,255,255,0.2);
+ padding: 24px;
+ }
+
+</style>
+</head>
+<body>
+
+<header>
+ <div>
+ <div class="logo"><span class="promp">Promp</span><span class="talent">Talent</span></div>
+ <div class="logo-sub">Donnez du talent à votre IA</div>
+ </div>
+ <div class="header-badge">Générateur de Prompts</div>
+</header>
+
+<main>
+ <div class="hero">
+ <h1>Génère le prompt parfait<br>pour <span>ta situation</span></h1>
+ <p>Décris ce que tu veux accomplir en langage naturel — l'agent PrompTalent te génère un prompt optimisé, prêt à copier-coller dans ton IA.</p>
+ </div>
+
+ <div class="steps">
+ <div class="step active" id="step1">
+ <div class="step-num">1</div>
+ <span>Ton métier</span>
+ </div>
+ <div class="step-sep"></div>
+ <div class="step" id="step2">
+ <div class="step-num">2</div>
+ <span>Ta situation</span>
+ </div>
+ <div class="step-sep"></div>
+ <div class="step" id="step3">
+ <div class="step-num">3</div>
+ <span>Ton prompt</span>
+ </div>
+ </div>
+
+ <div class="form-card" id="formCard">
+ <!-- Métier -->
+ <div class="field-group">
+ <label>Ton métier <span>*</span></label>
+ <div class="metier-grid">
+ <button class="metier-btn" onclick="selectMetier(this, 'Commercial')">Commercial</button>
+ <button class="metier-btn" onclick="selectMetier(this, 'Manager d\'équipe')">Manager d'équipe</button>
+ <button class="metier-btn" onclick="selectMetier(this, 'Recruteur / RH')">Recruteur / RH</button>
+ <button class="metier-btn" onclick="selectMetier(this, 'Chef de Projet')">Chef de Projet</button>
+ <button class="metier-btn" onclick="selectMetier(this, 'Consultant')">Consultant</button>
+ <button class="metier-btn" onclick="selectMetier(this, 'Autre')">Autre</button>
+ </div>
+ <div id="autreField" style="display:none;margin-top:10px;">
+ <input type="text" id="autreMetier" placeholder="Précise ton métier..." oninput="selectedMetier = this.value" />
+ </div>
+ </div>
+
+ <!-- Situation -->
+ <div class="field-group">
+ <label>Ta situation — décris ce que tu veux faire <span>*</span></label>
+ <textarea id="situation" rows="5"
+ placeholder="Ex : Je dois envoyer un email de prospection à un DRH dans une PME industrielle de 200 personnes. Je veux mettre en avant notre solution RH et obtenir un rendez-vous. Le ton doit être professionnel mais pas froid."></textarea>
+ </div>
+
+ <!-- Contexte additionnel -->
+ <div class="field-group">
+ <label>Contexte supplémentaire <span style="color:var(--gray);font-weight:400">(optionnel)</span></label>
+ 
+ <textarea id="contexte" rows="3"
+ placeholder="Ex : Mon entreprise s'appelle X, je m'appelle Y, le prospect s'appelle Z... Plus tu remplis cette partie, moins tu auras de crochets à compléter dans le prompt."></textarea>
+ </div>
+
+ <!-- IA préférée -->
+ <div class="field-group">
+ <label>IA que tu utilises</label>
+ <div class="ia-grid ia-grid-top">
+ <button class="ia-btn selected" onclick="selectIA(this, 'Claude')">
+ <span class="ia-name">Claude</span>
+ <span class="ia-desc">Nuance & précision</span>
+ </button>
+ <button class="ia-btn" onclick="selectIA(this, 'ChatGPT')">
+ <span class="ia-name">ChatGPT</span>
+ <span class="ia-desc">Créativité & volume</span>
+ </button>
+ <button class="ia-btn" onclick="selectIA(this, 'Perplexity')">
+ <span class="ia-name">Perplexity</span>
+ <span class="ia-desc">Recherche temps réel</span>
+ </button>
+ </div>
+ <div class="ia-grid ia-grid-bottom">
+ <button class="ia-btn" onclick="selectIA(this, 'Copilot')">
+ <span class="ia-name">Copilot</span>
+ <span class="ia-desc">Microsoft 365</span>
+ </button>
+ <button class="ia-btn" onclick="selectIA(this, 'Gemini')">
+ <span class="ia-name">Gemini</span>
+ <span class="ia-desc">Google Workspace</span>
+ </button>
+ </div>
+ <button class="ia-recommended-btn" id="iaRecommendedBtn" onclick="selectIA(this, 'recommandee')">
+ <span class="ia-rec-icon">⚡</span>
+ <span>
+ <span class="ia-rec-title">IA recommandée par PrompTalent</span>
+ <span class="ia-rec-sub">PrompTalent choisit automatiquement la meilleure IA pour ta situation</span>
+ </span>
+ </button>
+ </div>
+
+ <button class="btn-generate" id="btnGenerate" onclick="generatePrompt()">
+ <span class="btn-icon"></span>
+ Générer mon prompt parfait
+ </button>
+
+ <div class="error-box" id="errorBox"></div>
+ </div>
+
+ <!-- Loading -->
+ <div class="loading-state" id="loadingState">
+ <div class="loader"></div>
+ <div class="loading-text">PrompTalent analyse ta situation...</div>
+ <div class="loading-steps">
+ <div class="loading-step active" id="ls1"> Analyse du contexte métier</div>
+ <div class="loading-step" id="ls2"> Construction de la structure du prompt</div>
+ <div class="loading-step" id="ls3"> Optimisation et contraintes négatives</div>
+ <div class="loading-step" id="ls4"> Finalisation de ton prompt parfait</div>
+ </div>
+ </div>
+
+ <!-- Résultat -->
+ <div class="result-card" id="resultCard">
+ <div class="result-header">
+ <div class="result-title">Ton prompt optimisé</div>
+ </div>
+
+ <div class="result-box">
+ <div class="result-box-header">
+ <span class="result-box-label">Prompt — copie-colle directement</span>
+ <button class="btn-copy" id="btnCopy" onclick="copyPrompt()">Copier</button>
+ </div>
+ <div class="prompt-text" id="promptText"></div>
+ </div>
+
+ <div class="result-sections">
+ <div class="result-section">
+ <div class="section-label">IA recommandée</div>
+ <div class="section-content" id="iaResult"></div>
+ </div>
+ <div class="result-section">
+ <div class="section-label">Astuce pro</div>
+ <div class="section-content" id="astuceResult"></div>
+ </div>
+ </div>
+
+ <button class="btn-open-ia" id="btnOpenIA" onclick="openInIA()">
+ <span id="btnOpenIAText">Copier & ouvrir dans Claude</span>
+ </button>
+ <div id="saveZone" style="margin-top:8px;">
+ <div id="saveTitleZone" style="display:none;margin-bottom:8px;">
+ <input type="text" id="saveTitleInput" placeholder="Donne un titre à ce prompt..." 
+ style="width:100%;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:10px;padding:11px 14px;font-size:13px;color:#fff;font-family:'DM Sans',sans-serif;outline:none;"
+ onkeydown="if(event.key==='Enter') confirmSave()">
+ <div style="display:flex;gap:8px;margin-top:8px;">
+ <button onclick="confirmSave()" style="flex:1;background:var(--yellow);color:var(--navy);border:none;border-radius:8px;padding:10px;font-size:13px;font-weight:700;font-family:'DM Sans',sans-serif;cursor:pointer;">Sauvegarder</button>
+ <button onclick="cancelSave()" style="flex:1;background:transparent;border:1px solid rgba(255,255,255,0.12);color:var(--gray);border-radius:8px;padding:10px;font-size:13px;font-family:'DM Sans',sans-serif;cursor:pointer;">Annuler</button>
+ </div>
+ </div>
+ <button class="save-btn" id="btnSave" onclick="showSaveTitle()">
+ <span id="btnSaveText">⭐ Sauvegarder ce prompt</span>
+ </button>
+ </div>
+ <button class="btn-new" onclick="resetForm()">← Générer un nouveau prompt</button>
+ </div>
+</main>
+
+<footer>
+ <p>Propulsé par <span>PrompTalent</span> · Donnez du talent à votre IA </p>
+</footer>
+
+<script>
+
+const IA_URLS = {
+ 'Claude': 'https://claude.ai/new',
+ 'ChatGPT': 'https://chat.openai.com',
+ 'Perplexity': 'https://www.perplexity.ai',
+ 'Copilot': 'https://copilot.microsoft.com',
+ 'Gemini': 'https://gemini.google.com',
+};
+
+function updateOpenIAButton() {
+ const btn = document.getElementById('btnOpenIAText');
+ if (!btn) return;
+ let iaName = selectedIA;
+ if (selectedIA === 'recommandee') {
+ // Sera mis à jour après génération
+ iaName = 'l\'IA recommandée';
+ }
+ btn.textContent = ' Copier & ouvrir dans2 ' + iaName;
+}
+
+function openInIA() {
+ const prompt = document.getElementById('promptText').textContent;
+ const iaName = document.getElementById('btnOpenIAText').textContent.replace(' Copier & ouvrir dans2 ', '');
+ 
+ // Copier le prompt
+ navigator.clipboard.writeText(prompt).then(() => {
+ // Ouvrir l'IA dans un nouvel onglet
+ const url = IA_URLS[iaName] || 'https://claude.ai/new';
+ window.open(url, '_blank');
+ 
+ // Feedback visuel
+ const btn = document.getElementById('btnOpenIAText');
+ const original = btn.textContent;
+ btn.textContent = '✓ Prompt copié — colle-le dans l\'IA !';
+ setTimeout(() => { btn.textContent = original; }, 3000);
+ });
+}
+
+let selectedMetier = '';
+let selectedIA = 'Claude';
+
+function selectMetier(btn, metier) {
+ document.querySelectorAll('.metier-btn').forEach(b => b.classList.remove('selected'));
+ btn.classList.add('selected');
+ const autreField = document.getElementById('autreField');
+ if (metier === 'Autre') {
+ autreField.style.display = 'block';
+ selectedMetier = document.getElementById('autreMetier').value || '';
+ document.getElementById('autreMetier').focus();
+ } else {
+ autreField.style.display = 'none';
+ selectedMetier = metier;
+ }
+ updateStep(1);
+}
+
+function selectIA(btn, ia) {
+ document.querySelectorAll('.ia-btn').forEach(b => b.classList.remove('selected'));
+ document.getElementById('iaRecommendedBtn').classList.remove('selected');
+ btn.classList.add('selected');
+ selectedIA = ia;
+}
+
+function updateStep(n) {
+ for (let i = 1; i <= 3; i++) {
+ const el = document.getElementById('step' + i);
+ el.classList.remove('active', 'done');
+ if (i < n) el.classList.add('done');
+ else if (i === n) el.classList.add('active');
+ }
+}
+
+async function generatePrompt() {
+ const situation = document.getElementById('situation').value.trim();
+ const contexte = document.getElementById('contexte').value.trim();
+ const errorBox = document.getElementById('errorBox');
+
+ errorBox.classList.remove('visible');
+
+ if (!selectedMetier) {
+ errorBox.textContent = 'Sélectionne ton métier avant de continuer.';
+ errorBox.classList.add('visible');
+ return;
+ }
+ if (!situation) {
+ errorBox.textContent = 'Décris ta situation pour générer un prompt.';
+ errorBox.classList.add('visible');
+ return;
+ }
+
+ // UI → loading
+ document.getElementById('formCard').style.display = 'none';
+ document.getElementById('loadingState').classList.add('visible');
+ document.getElementById('resultCard').classList.remove('visible');
+ updateStep(2);
+
+ // Animation des étapes
+ const steps = ['ls1','ls2','ls3','ls4'];
+ let si = 0;
+ const stepInterval = setInterval(() => {
+ if (si > 0) document.getElementById(steps[si-1]).classList.remove('active');
+ if (si < steps.length) {
+ document.getElementById(steps[si]).classList.add('active');
+ si++;
+ } else {
+ clearInterval(stepInterval);
+ }
+ }, 900);
+
+ const systemPrompt = `Tu es l'agent PrompTalent, expert en prompt engineering pour les professionnels.
+
+Ton rôle : transformer une situation décrite en langage naturel en un prompt IA parfait, optimisé et prêt à l'emploi.
+
+Un prompt PrompTalent suit toujours cette structure :
+1. Rôle précis donné à l'IA (adapté au métier et au contexte)
+2. Contexte détaillé avec les variables entre [CROCHETS] à personnaliser
+3. La demande précise avec des contraintes de format
+4. Des contraintes négatives : ce que l'IA NE doit PAS faire (formules interdites, ton à éviter, clichés)
+5. Un format de sortie imposé (longueur, structure, style)
+
+Réponds UNIQUEMENT en JSON valide avec exactement ces clés :
+{
+ "prompt": "le prompt complet optimisé avec les variables entre [CROCHETS]",
+ "ia_recommandee": "nom de l'IA recommandée et pourquoi en 1-2 phrases",
+ "astuce": "une astuce terrain concrète pour aller plus loin avec ce prompt"
+}
+
+Ne mets aucun texte avant ou après le JSON. Le prompt doit être directement utilisable.`;
+
+ const iaLabel = selectedIA === 'recommandee'
+ ? 'Choisie par PrompTalent selon la situation (précise laquelle dans ta réponse et explique pourquoi)'
+ : selectedIA;
+
+ const userMessage = `Métier : ${selectedMetier}
+IA utilisée : ${iaLabel}
+Situation : ${situation}${contexte ? '\nContexte supplémentaire : ' + contexte : ''}
+
+Génère un prompt PrompTalent parfait pour cette situation.`;
+
+ try {
+ const response = await fetch('/api/generate', {
+ method: 'POST',
+ headers: { 'Content-Type': 'application/json' },
+ body: JSON.stringify({
+ metier: selectedMetier,
+ situation,
+ contexte,
+ ia: selectedIA
+ })
+ });
+
+ clearInterval(stepInterval);
+ steps.forEach(s => document.getElementById(s).classList.remove('active'));
+
+ const result = await response.json();
+ if (!response.ok) throw new Error(result.error || 'Erreur serveur');
+
+ // Afficher le résultat
+ document.getElementById('loadingState').classList.remove('visible');
+ document.getElementById('promptText').textContent = result.prompt;
+ // Extraire le nom de l'IA depuis ia_recommandee si mode PrompTalent
+ let iaBadge = selectedIA;
+ let iaNote = '';
+ if (selectedIA === 'recommandee') {
+ // Extraire le nom de l'IA depuis la première phrase de ia_recommandee
+ const iaNames = ['Claude', 'ChatGPT', 'Perplexity', 'Copilot', 'Gemini'];
+ const found = iaNames.find(name => result.ia_recommandee.includes(name));
+ iaBadge = found || 'IA recommandée';
+ iaNote = '<div style="font-size:11px;color:var(--yellow);margin-top:6px;display:flex;align-items:center;gap:4px;">⚡ Recommandée par PrompTalent</div>';
+ }
+ document.getElementById('iaResult').innerHTML = `<span class="ia-badge-result">${iaBadge}</span>${iaNote}<span style="font-size:12px;color:var(--gray);margin-top:6px;display:block">${result.ia_recommandee}</span>`;
+ document.getElementById('astuceResult').textContent = result.astuce;
+ // Mettre à jour le bouton "Ouvrir dans l'IA"
+ const openBtn = document.getElementById('btnOpenIAText');
+ if (openBtn) {
+ const iaNames = ['Claude', 'ChatGPT', 'Perplexity', 'Copilot', 'Gemini'];
+ let displayIA = selectedIA;
+ if (selectedIA === 'recommandee') {
+ const found = iaNames.find(name => result.ia_recommandee.includes(name));
+ displayIA = found || 'Claude';
+ }
+ openBtn.textContent = ' Copier & ouvrir dans2 ' + displayIA;
+ }
+ document.getElementById('resultCard').classList.add('visible');
+ updateStep(3);
+
+ } catch(err) {
+ clearInterval(stepInterval);
+ document.getElementById('loadingState').classList.remove('visible');
+ document.getElementById('formCard').style.display = 'block';
+ errorBox.textContent = err.message || 'Une erreur est survenue. Réessaie.';
+ errorBox.classList.add('visible');
+ updateStep(1);
+ }
+}
+
+function copyPrompt() {
+ const text = document.getElementById('promptText').textContent;
+ navigator.clipboard.writeText(text).then(() => {
+ const btn = document.getElementById('btnCopy');
+ btn.textContent = '✓ Copié !';
+ btn.classList.add('copied');
+ setTimeout(() => {
+ btn.textContent = 'Copier';
+ btn.classList.remove('copied');
+ }, 2000);
+ });
+}
+
+function resetForm() {
+ document.getElementById('resultCard').classList.remove('visible');
+ document.getElementById('formCard').style.display = 'block';
+ document.getElementById('situation').value = '';
+ document.getElementById('contexte').value = '';
+ document.getElementById('autreField').style.display = 'none';
+ document.getElementById('autreMetier').value = '';
+ document.querySelectorAll('.metier-btn').forEach(b => b.classList.remove('selected'));
+ document.querySelectorAll('.ia-btn').forEach(b => b.classList.remove('selected'));
+ document.getElementById('iaRecommendedBtn').classList.remove('selected');
+ document.querySelector('.ia-btn').classList.add('selected');
+ selectedMetier = '';
+ selectedIA = 'Claude';
+ updateStep(1);
+ window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ── SYSTÈME DE SAUVEGARDE PERSISTANTE ──
+let savedPrompts = JSON.parse(localStorage.getItem('pt_saved') || '[]');
+
+function showSaveTitle() {
+ document.getElementById('saveTitleZone').style.display = 'block';
+ document.getElementById('btnSave').style.display = 'none';
+ document.getElementById('saveTitleInput').focus();
+ // Suggérer un titre automatique
+ const metier = selectedMetier || 'Prompt';
+ const situation = document.getElementById('situation').value.substring(0, 30);
+ document.getElementById('saveTitleInput').value = metier + ' — ' + situation;
+ document.getElementById('saveTitleInput').select();
+}
+
+function cancelSave() {
+ document.getElementById('saveTitleZone').style.display = 'none';
+ document.getElementById('btnSave').style.display = 'flex';
+}
+
+function confirmSave() {
+ const titre = document.getElementById('saveTitleInput').value.trim() || 'Prompt sans titre';
+ const prompt = document.getElementById('promptText').textContent;
+ const ia = document.getElementById('iaResult').textContent;
+ const astuce = document.getElementById('astuceText')?.textContent || '';
+
+ if (!prompt) return;
+
+ const entry = {
+ id: Date.now(),
+ titre,
+ metier: selectedMetier,
+ situation: document.getElementById('situation').value.substring(0, 80),
+ prompt,
+ ia,
+ astuce,
+ date: new Date().toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: '2-digit' }) 
+ + ' ' + new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })
+ };
+
+ savedPrompts.unshift(entry);
+ if (savedPrompts.length > 50) savedPrompts = savedPrompts.slice(0, 50);
+ localStorage.setItem('pt_saved', JSON.stringify(savedPrompts));
+
+ document.getElementById('saveTitleZone').style.display = 'none';
+ const btn = document.getElementById('btnSave');
+ btn.style.display = 'flex';
+ btn.classList.add('saved');
+ document.getElementById('btnSaveText').textContent = '⭐ Sauvegarder ce promptD_OK';
+ setTimeout(() => {
+ btn.classList.remove('saved');
+ document.getElementById('btnSaveText').textContent = '⭐ Sauvegarder ce prompt';
+ }, 2000);
+
+ renderSaved();
+}
+
+function savePrompt() { showSaveTitle(); }
+
+function renderSaved() {
+ const list = document.getElementById('savedList');
+ const section = document.getElementById('savedSection');
+
+ if (savedPrompts.length === 0) {
+ list.innerHTML = '<div class="saved-empty">Aucun prompt sauvegardé pour le moment</div>';
+ section.classList.remove('visible');
+ return;
+ }
+
+ section.classList.add('visible');
+ list.innerHTML = savedPrompts.map(entry => `
+ <div class="saved-item">
+ <div class="saved-item-meta">
+ <div class="saved-item-title">${entry.titre || entry.metier}</div>
+ <div class="saved-item-date">${entry.date}</div>
+ </div>
+ <div class="saved-item-preview">${entry.situation}</div>
+ <div class="saved-item-footer">
+ <button class="saved-item-copy" onclick="copyPrompt(${entry.id})">Copier</button>
+ <button class="saved-item-copy" onclick="openPrompt(${entry.id})" style="border-color:rgba(252,222,90,0.2);color:rgba(252,222,90,0.6);">Voir</button>
+ <button class="saved-item-delete" onclick="deletePrompt(${entry.id})">Supprimer</button>
+ </div>
+ </div>
+ `).join('');
+}
+
+function copyPrompt(id) {
+ const entry = savedPrompts.find(e => e.id == id);
+ if (!entry) return;
+ navigator.clipboard.writeText(entry.prompt).then(() => {
+ const btn = event.target;
+ btn.textContent = '✓ Copié !';
+ setTimeout(() => btn.textContent = 'Copier', 2000);
+ });
+}
+
+function deletePrompt(id) {
+ savedPrompts = savedPrompts.filter(e => e.id !== id);
+ localStorage.setItem('pt_saved', JSON.stringify(savedPrompts));
+ renderSaved();
+}
+
+function clearAll() {
+ savedPrompts = [];
+ localStorage.removeItem('pt_saved');
+ renderSaved();
+}
+
+// Afficher les prompts sauvegardés au chargement
+renderSaved();
+
+</script>
+</body>
+</html>
