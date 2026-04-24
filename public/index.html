@@ -871,7 +871,7 @@
 </main>
 
 <footer>
- <p>Propulsé par <span>PrompTalent</span> · Donnez du talent à votre IA⚡ </p>
+ <p>Propulsé par <span>PrompTalent</span> · Donnez du talent à votre IA </p>
 </footer>
 
 <script>
@@ -1043,7 +1043,7 @@ Génère un prompt PrompTalent parfait pour cette situation.`;
  const iaNames = ['Claude', 'ChatGPT', 'Perplexity', 'Copilot', 'Gemini'];
  const found = iaNames.find(name => result.ia_recommandee.includes(name));
  iaBadge = found || 'IA recommandée';
- iaNote = '<div style="font-size:11px;color:var(--yellow);margin-top:6px;display:flex;align-items:center;gap:4px;">⚡ Recommandée par PrompTalent</div>';
+ iaNote = '<div style="font-size:11px;color:var(--yellow);margin-top:6px;display:flex;align-items:center;gap:4px;">Recommandée par PrompTalent</div>';
  }
  document.getElementById('iaResult').innerHTML = `<span class="ia-badge-result">${iaBadge}</span>${iaNote}<span style="font-size:12px;color:var(--gray);margin-top:6px;display:block">${result.ia_recommandee}</span>`;
  document.getElementById('astuceResult').textContent = result.astuce;
@@ -1148,10 +1148,10 @@ function confirmSave() {
  const btn = document.getElementById('btnSave');
  btn.style.display = 'flex';
  btn.classList.add('saved');
- document.getElementById('btnSaveText').textContent = '⭐ Sauvegarder ce promptD_OK';
+ document.getElementById('btnSaveText').textContent = 'Sauvegarder ce promptD_OK';
  setTimeout(() => {
  btn.classList.remove('saved');
- document.getElementById('btnSaveText').textContent = '⭐ Sauvegarder ce prompt';
+ document.getElementById('btnSaveText').textContent = 'Sauvegarder ce prompt';
  }, 2000);
 
  renderSaved();
